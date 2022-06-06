@@ -12,7 +12,7 @@ CTestTestfile.cmake
 _deps
 
 .vs
-cglm
-glad
-glfw
-openal
+cglm/
+glad/
+glfw/
+openal/
