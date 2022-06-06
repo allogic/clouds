@@ -1,0 +1,12 @@
+[submodule "openal"]
+	path = openal
+	url = https://github.com/allogic/openal
+[submodule "glfw"]
+	path = glfw
+	url = https://github.com/allogic/glfw
+[submodule "glad"]
+	path = glad
+	url = https://github.com/allogic/glad
+[submodule "cglm"]
+	path = cglm
+	url = https://github.com/allogic/cglm

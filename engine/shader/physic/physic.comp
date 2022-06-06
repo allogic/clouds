@@ -1,0 +1,188 @@
+#version 460 core
+
+////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////
+
+#define PI        3.1415926f
+#define TAU       6.2831853f
+#define PIOVER180 0.0174532f
+
+#define TRANSFORM_DYNAMIC 0x00000001
+
+#define RIGHT vec3(1.0f, 0.0f, 0.0f)
+#define UP    vec3(0.0f, 1.0f, 0.0f)
+#define FRONT vec3(0.0f, 0.0f, 1.0f)
+
+////////////////////////////////////////////////////////
+// Execution layout
+////////////////////////////////////////////////////////
+
+layout (local_size_x = 32, local_size_y = 16, local_size_z = 1) in;
+
+////////////////////////////////////////////////////////
+// Data types
+////////////////////////////////////////////////////////
+
+struct Transform
+{
+  vec4 position;
+  vec4 rotation;
+  vec4 scale;
+  vec4 w;
+  vec4 local_right;
+  vec4 local_up;
+  vec4 local_front;
+  uint mask;
+  uint rigidbody_id;
+  uint reserved[2];
+};
+struct Rigidbody
+{
+  vec4 position_velocity;
+  vec4 rotation_velocity;
+  float position_drag;
+  float rotation_drag;
+  float mass;
+  float reserved[1];
+};
+
+////////////////////////////////////////////////////////
+// Bindings
+////////////////////////////////////////////////////////
+
+layout (binding = 0, std430) buffer Transforms
+{
+  Transform transforms[];
+};
+layout (binding = 1, std430) buffer Rigidbodies
+{
+  Rigidbody rigidbodies[];
+};
+
+////////////////////////////////////////////////////////
+// Uniforms
+////////////////////////////////////////////////////////
+
+uniform float time;
+
+////////////////////////////////////////////////////////
+// Functions
+////////////////////////////////////////////////////////
+
+vec4 quat_from_euler_angles(float pitch, float yaw, float roll)
+{
+  float p = pitch * PIOVER180 / 2.0f;
+  float y = yaw * PIOVER180 / 2.0f;
+  float r = roll * PIOVER180 / 2.0f;
+  float sp = sin(p);
+  float sy = sin(y);
+  float sr = sin(r);
+  float cp = cos(p);
+  float cy = cos(y);
+  float cr = cos(r);
+  return vec4(
+    sr * cp * cy - cr * sp * sy,
+    cr * sp * cy + sr * cp * sy,
+    cr * cp * sy - sr * sp * cy,
+    cr * cp * cy + sr * sp * sy
+  );
+}
+vec4 quat_from_axis_angle(vec3 axis, float angle)
+{ 
+  float half_angle = angle * 0.5f;
+  float theta = sin(half_angle);
+  float phi = cos(half_angle);
+  return vec4(
+    axis.x * theta,
+    axis.y * theta,
+    axis.z * theta,
+    phi
+  );
+}
+vec4 quat_mul(vec4 q1, vec4 q2)
+{ 
+  return vec4(
+    (q1.w * q2.x) + (q1.x * q2.w) + (q1.y * q2.z) - (q1.z * q2.y),
+    (q1.w * q2.y) - (q1.x * q2.z) + (q1.y * q2.w) + (q1.z * q2.x),
+    (q1.w * q2.z) + (q1.x * q2.y) - (q1.y * q2.x) + (q1.z * q2.w),
+    (q1.w * q2.w) - (q1.x * q2.x) - (q1.y * q2.y) - (q1.z * q2.z)
+  );
+}
+vec4 quat_conj(vec4 q)
+{
+  return vec4(-q.x, -q.y, -q.z, q.w);
+}
+vec4 quat_inv(vec4 q)
+{
+  return quat_mul(q, vec4(-1.0f, -1.0f, -1.0f, 1.0f));
+}
+vec3 quat_rotate_vector(vec3 v, vec4 q)
+{ 
+  return v + 2.0f * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+mat4 mat4_rotate(mat4 m, float a, vec4 v)
+{
+  float s = sin(a);
+  float c = cos(a);
+  float x = v.x;
+  float y = v.y;
+  float z = v.z;
+  mat4 r = mat4(
+    x*x*(1.0f-c)+c,   x*y*(1.0f-c)-z*s, x*z*(1.0f-c)+y*s, 0.0f,
+    y*x*(1.0f-c)+z*s, y*y*(1.0f-c)+c,   y*z*(1.0f-c)-x*s, 0.0f,
+    z*x*(1.0f-c)-y*s, z*y*(1.0f-c)+x*s, z*z*(1.0f-c)+c,   0.0f,
+    0.0f,             0.0f,             0.0f,             1.0f
+  );
+  return m * r;
+}
+
+////////////////////////////////////////////////////////
+// Entry point
+////////////////////////////////////////////////////////
+
+void main()
+{
+  // Transform index
+  uint i =
+    (gl_GlobalInvocationID.z * gl_WorkGroupSize.x * gl_WorkGroupSize.y) +
+    (gl_GlobalInvocationID.y * gl_WorkGroupSize.x) +
+    (gl_GlobalInvocationID.x);
+
+  // Rigidbody index
+  uint j = transforms[i].rigidbody_id;
+
+  // Compute local vectors
+  if (length(rigidbodies[j].rotation_velocity) > 0.001f)
+  {
+    mat4 m = mat4(
+      1.0f, 0.0f, 0.0f, 0.0f,
+      0.0f, 1.0f, 0.0f, 0.0f,
+      0.0f, 0.0f, 1.0f, 0.0f,
+      0.0f, 0.0f, 0.0f, 1.0f
+    );
+    m = mat4_rotate(m, radians(rigidbodies[j].rotation_velocity.x), transforms[i].local_right);
+    m = mat4_rotate(m, radians(rigidbodies[j].rotation_velocity.y), transforms[i].local_up);
+    m = mat4_rotate(m, radians(rigidbodies[j].rotation_velocity.z), transforms[i].local_front);
+    transforms[i].local_right = normalize(m * transforms[i].local_right);
+    transforms[i].local_up = normalize(m * transforms[i].local_up);
+    transforms[i].local_front = normalize(m * transforms[i].local_front);
+  }
+
+  // Apply physic
+  if (bool(transforms[i].mask & TRANSFORM_DYNAMIC))
+  {
+    // Apply position drag
+    rigidbodies[j].position_velocity += -rigidbodies[j].position_velocity * rigidbodies[j].position_drag * time;
+
+    // Apply rotation drag
+    rigidbodies[j].rotation_velocity += -rigidbodies[j].rotation_velocity * rigidbodies[j].rotation_drag * time;
+
+    // Apply position velocity
+    transforms[i].position += rigidbodies[j].position_velocity;
+
+    // Apply rotation velocity
+    transforms[i].rotation += rigidbodies[j].rotation_velocity;
+  }
+}
