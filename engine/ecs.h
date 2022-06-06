@@ -4,10 +4,12 @@
 #include <core/types.h>
 #include <core/static_queue.h>
 
-#include <transform.h>
-#include <camera.h>
-#include <mesh.h>
-#include <rigidbody.h>
+#include <components/transform.h>
+#include <components/camera.h>
+#include <components/mesh.h>
+#include <components/rigidbody.h>
+#include <components/audio_listener.h>
+#include <components/audio_source.h>
 
 #define ECS_NUM_ENTITY_X ((u32)32)
 #define ECS_NUM_ENTITY_Y ((u32)32)
@@ -20,16 +22,20 @@
 
 typedef enum
 {
-  comp_bit_transform = 0x0000000000000001, comp_idx_transform = 0,
-  comp_bit_camera    = 0x0000000000000002, comp_idx_camera    = 1,
-  comp_bit_mesh      = 0x0000000000000004, comp_idx_mesh      = 2,
-  comp_bit_rigibody  = 0x0000000000000008, comp_idx_rigidbody = 3,
+  comp_bit_transform      = 0x0000000000000001, comp_idx_transform      = 0,
+  comp_bit_camera         = 0x0000000000000002, comp_idx_camera         = 1,
+  comp_bit_mesh           = 0x0000000000000004, comp_idx_mesh           = 2,
+  comp_bit_rigibody       = 0x0000000000000008, comp_idx_rigidbody      = 3,
+  comp_bit_audio_listener = 0x0000000000000010, comp_idx_audio_listener = 4,
+  comp_bit_audio_source   = 0x0000000000000020, comp_idx_audio_source   = 5,
 } comp_map_t;
 
 #define ECS_TRANSFORM(ENTITY) ((transform_t*)((entity_t*)ENTITY)->components[comp_idx_transform])
 #define ECS_CAMERA(ENTITY) ((camera_t*)((entity_t*)ENTITY)->components[comp_idx_camera])
 #define ECS_MESH(ENTITY) ((mesh_t*)((entity_t*)ENTITY)->components[comp_idx_mesh])
 #define ECS_RIGIDBODY(ENTITY) ((rigidbody_t*)((entity_t*)ENTITY)->components[comp_idx_rigidbody])
+#define ECS_AUDIO_LISTENER(ENTITY) ((audio_listener_t*)((entity_t*)ENTITY)->components[comp_idx_audio_listener])
+#define ECS_AUDIO_SOURCE(ENTITY) ((audio_source_t*)((entity_t*)ENTITY)->components[comp_idx_audio_source])
 
 typedef enum
 {
@@ -75,6 +81,8 @@ transform_t* ecs_attach_transform(entity_t* entity);
 camera_t* ecs_attach_camera(entity_t* entity);
 mesh_t* ecs_attach_mesh(entity_t* entity);
 rigidbody_t* ecs_attach_rigidbody(entity_t* entity);
+audio_listener_t* ecs_attach_audio_listener(entity_t* entity);
+audio_source_t* ecs_attach_audio_source(entity_t* entity);
 void ecs_register_static(u32 queue_idx, queue_proc_t proc);
 void ecs_register_dynamic(entity_t* entity, u32 proc_idx, u64 proc_bit, queue_proc_t proc);
 void ecs_update_queues(entity_t* entity);

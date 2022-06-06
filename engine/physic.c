@@ -1,9 +1,6 @@
 #include <physic.h>
 #include <shader.h>
 #include <buffer.h>
-#include <transform.h>
-#include <rigidbody.h>
-#include <ecs.h>
 #include <constants.h>
 
 static shader_t physic_shader =
@@ -11,7 +8,7 @@ static shader_t physic_shader =
   shader_compute,
   "",
   "",
-  ENGINE_ROOT_DIR "engine\\shader\\physic\\physic.comp",
+  ENGINE_ROOT_DIR "shader\\physic\\physic.comp",
 };
 
 buffer_t transforms;

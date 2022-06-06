@@ -2,11 +2,8 @@
 #include <string.h>
 
 #include <ecs.h>
-#include <transform.h>
-#include <mesh.h>
 #include <vertex.h>
 #include <buffer.h>
-#include <mesh.h>
 #include <gizmo.h>
 #include <constants.h>
 

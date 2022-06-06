@@ -1,18 +1,15 @@
 #include <glad.h>
 
 #include <renderer.h>
-#include <transform.h>
-#include <camera.h>
 #include <gizmo.h>
 #include <shader.h>
-#include <mesh.h>
 #include <constants.h>
 
 static shader_t pbr_shader =
 {
   shader_render,
-  ENGINE_ROOT_DIR "engine\\shader\\render\\pbr.vert",
-  ENGINE_ROOT_DIR "engine\\shader\\render\\pbr.frag",
+  ENGINE_ROOT_DIR "shader\\render\\pbr.vert",
+  ENGINE_ROOT_DIR "shader\\render\\pbr.frag",
 };
 
 extern entity_t* player;
@@ -46,7 +43,7 @@ void renderer_render(r32 delta_time)
     shader_uniform_r32m4(&pbr_shader, "view", ECS_CAMERA(player)->view);
     ecs_dispatch_render();
     shader_unbind(&pbr_shader);
-    gizmo_render(ECS_CAMERA(player));
+    gizmo_render();
   }
 }
 void renderer_destroy()

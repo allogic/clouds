@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <string.h>
 #include <assert.h>
 
 #include <core/fwd_list.h>
@@ -72,6 +72,18 @@ rigidbody_t* ecs_attach_rigidbody(entity_t* entity)
   ECS_TRANSFORM(entity)->mask |= transform_dynamic;
   return ECS_RIGIDBODY(entity);
 }
+audio_listener_t* ecs_attach_audio_listener(entity_t* entity)
+{
+  entity->components[comp_idx_audio_listener] = calloc(1, sizeof(audio_listener_t));
+  entity->comp_mask |= comp_bit_audio_listener;
+  return ECS_AUDIO_LISTENER(entity);
+}
+audio_source_t* ecs_attach_audio_source(entity_t* entity)
+{
+  entity->components[comp_idx_audio_source] = calloc(1, sizeof(audio_source_t));
+  entity->comp_mask |= comp_bit_audio_source;
+  return ECS_AUDIO_SOURCE(entity);
+}
 void ecs_register_static(u32 queue_idx, queue_proc_t proc)
 {
   procedures[queue_idx] = proc;
@@ -87,10 +99,7 @@ void ecs_update_queues(entity_t* entity)
   if ((entity->comp_mask & queue_mask_update) == queue_mask_update) status |= static_queue_push(&update_queue, &entity);
   if ((entity->comp_mask & queue_mask_physic) == queue_mask_physic) status |= static_queue_push(&physic_queue, &entity);
   if ((entity->comp_mask & queue_mask_render) == queue_mask_render) status |= static_queue_push(&render_queue, &entity);
-  if (status != 0)
-  {
-    printf("Queue drop detected\n");
-  }
+  assert(status == 0);
 }
 void ecs_dispatch(static_queue_t* queue, u32 queue_idx, dispatch_t dispatch_type)
 {

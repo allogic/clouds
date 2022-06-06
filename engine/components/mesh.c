@@ -1,7 +1,8 @@
 #include <glad.h>
 
-#include <mesh.h>
 #include <vertex.h>
+
+#include <components/mesh.h>
 
 u8 mesh_create(mesh_t* mesh)
 {

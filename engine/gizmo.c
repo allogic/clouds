@@ -1,22 +1,27 @@
 #include <string.h>
 
+#include <ecs.h>
 #include <gizmo.h>
 #include <shader.h>
-#include <mesh.h>
 #include <vertex.h>
 #include <constants.h>
+
+#include <components/camera.h>
+#include <components/mesh.h>
+
+extern entity_t* player;
 
 static shader_t line_shader =
 {
   shader_render,
-  ENGINE_ROOT_DIR "engine\\shader\\gizmo\\line.vert",
-  ENGINE_ROOT_DIR "engine\\shader\\gizmo\\line.frag",
+  ENGINE_ROOT_DIR "shader\\gizmo\\line.vert",
+  ENGINE_ROOT_DIR "shader\\gizmo\\line.frag",
 };
 static shader_t text_shader =
 {
   shader_render,
-  ENGINE_ROOT_DIR "engine\\shader\\gizmo\\text.vert",
-  ENGINE_ROOT_DIR "engine\\shader\\gizmo\\text.frag",
+  ENGINE_ROOT_DIR "shader\\gizmo\\text.vert",
+  ENGINE_ROOT_DIR "shader\\gizmo\\text.frag",
 };
 
 static mesh_t line_mesh =
@@ -160,11 +165,11 @@ void gizmo_push_text(r32v3 p, r32v3 s, i8 const* str, r32v4 c)
 {
 
 }
-void gizmo_render(camera_t* camera)
+void gizmo_render()
 {
   shader_bind(&line_shader);
-  shader_uniform_r32m4(&line_shader, "projection", camera->projection);
-  shader_uniform_r32m4(&line_shader, "view", camera->view);
+  shader_uniform_r32m4(&line_shader, "projection", ECS_CAMERA(player)->projection);
+  shader_uniform_r32m4(&line_shader, "view", ECS_CAMERA(player)->view);
   mesh_bind(&line_mesh);
   buffer_bind(&line_mesh.vertex_buffers[0]);
   //buffer_clear(&line_mesh.vertex_buffers[0], prev_line_vertex_offset);

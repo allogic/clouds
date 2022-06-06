@@ -1,7 +1,8 @@
 #include <cglm.h>
 
-#include <transform.h>
 #include <constants.h>
+
+#include <components/transform.h>
 
 void transform_identity(transform_t* transform)
 {

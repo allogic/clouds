@@ -1,4 +1,4 @@
-#include <rigidbody.h>
+#include <components/rigidbody.h>
 
 void rigidbody_identity(rigidbody_t* rigidbody)
 {

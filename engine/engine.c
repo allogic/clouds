@@ -9,9 +9,8 @@
 #include <ecs.h>
 #include <renderer.h>
 #include <physic.h>
-#include <transform.h>
-#include <camera.h>
 #include <events.h>
+#include <sound.h>
 
 #include <sandbox.h>
 
@@ -39,15 +38,15 @@ extern entity_t* player;
 
 r32v2 mouse_position;
 
-void glfw_debug_proc(i32 error, i8 const* msg)
+static void glfw_debug_proc(i32 error, i8 const* msg)
 {
   printf(msg);
 }
-void glfw_close_proc(GLFWwindow* window)
+static void glfw_close_proc(GLFWwindow* window)
 {
   status = 1;
 }
-void glfw_resize_proc(GLFWwindow* window, i32 width, i32 height)
+static void glfw_resize_proc(GLFWwindow* window, i32 width, i32 height)
 {
   window_width = (u32)width;
   window_height = (u32)height;
@@ -57,21 +56,21 @@ void glfw_resize_proc(GLFWwindow* window, i32 width, i32 height)
   }
   glViewport(0, 0, (u32)width, (u32)height);
 }
-void glfw_mouse_key_proc(GLFWwindow* window, i32 button, i32 action, i32 mods)
+static void glfw_mouse_key_proc(GLFWwindow* window, i32 button, i32 action, i32 mods)
 {
 
 }
-void glfw_keyboard_key_proc(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods)
+static void glfw_keyboard_key_proc(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods)
 {
 
 }
-void glfw_mouse_pos_proc(GLFWwindow* window, r64 x, r64 y)
+static void glfw_mouse_pos_proc(GLFWwindow* window, r64 x, r64 y)
 {
   mouse_position[0] = (r32)x;
   mouse_position[1] = (r32)y;
 }
 
-void gl_debug_proc(u32 source, u32 type, u32 id, u32 severity, i32 length, i8 const* msg, void const* user_param)
+static void gl_debug_proc(u32 source, u32 type, u32 id, u32 severity, i32 length, i8 const* msg, void const* user_param)
 {
   switch (severity)
   {
@@ -115,6 +114,10 @@ void engine_physic()
     prev_physic_time = time;
   }
 }
+void engine_sound()
+{
+  sound_update();
+}
 
 i32 main()
 {
@@ -143,6 +146,7 @@ i32 main()
         status |= ecs_create();
         status |= renderer_create();
         status |= physic_create();
+        status |= sound_create();
         status |= sandbox_create();
         while (status == 0)
         {
@@ -153,9 +157,11 @@ i32 main()
           engine_update();
           engine_render();
           engine_physic();
+          engine_sound();
           prev_time = time;
         }
         sandbox_destroy();
+        sound_destroy();
         physic_destroy();
         renderer_destroy();
         ecs_destroy();
