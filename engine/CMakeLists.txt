@@ -11,22 +11,18 @@ target_compile_definitions(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC ${ENGINE_DIR}
   PUBLIC ${SANDBOX_DIR}
-  PUBLIC ${ROOT_DIR}/glad
-  PUBLIC ${ROOT_DIR}/glfw/include/glfw
-  PUBLIC ${ROOT_DIR}/cglm/include/cglm)
+  PUBLIC ${GLAD_DIR}
+  PUBLIC ${GLFW_DIR}/include/glfw
+  PUBLIC ${CGLM_DIR}/include/cglm
+  PUBLIC ${OPENAL_DIR}/include/AL)
 
 target_link_directories(${PROJECT_NAME}
+  PUBLIC ${CMAKE_BINARY_DIR}/openal
   PUBLIC ${CMAKE_BINARY_DIR}/glfw/src
   PUBLIC ${CMAKE_BINARY_DIR})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC ${OPENGL_LIBRARIES}
   PUBLIC glfw
-  PUBLIC cglm)
-
-add_custom_command(
-  TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/glfw/src/glfw3.dll ${CMAKE_CURRENT_BINARY_DIR}/glfw3.dll)
-add_custom_command(
-  TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/openal/OpenAL32.dll ${CMAKE_CURRENT_BINARY_DIR}/OpenAL32.dll)
+  PUBLIC cglm
+  PUBLIC openal)

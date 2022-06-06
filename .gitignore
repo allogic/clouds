@@ -10,10 +10,12 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
-
+*.bak
 .vs/
 out/
 cglm/
 glad/
 glfw/
 openal/
+static/
+shared/
