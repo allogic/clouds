@@ -3,7 +3,6 @@
 
 #include <ecs.h>
 #include <vertex.h>
-#include <buffer.h>
 #include <gizmo.h>
 #include <constants.h>
 

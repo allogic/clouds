@@ -10,7 +10,7 @@ u8 mesh_create(mesh_t* mesh)
   if (mesh->vao != 0)
   {
     glBindVertexArray(mesh->vao);
-    buffer_bind(&mesh->vertex_buffers[0]);
+    vbo_bind(&mesh->vbos[0]);
     switch (mesh->type)
     {
       case mesh_line:
@@ -42,10 +42,10 @@ u8 mesh_create(mesh_t* mesh)
         break;
       }
     }
-    buffer_bind(&mesh->element_buffers[0]);
+    ebo_bind(&mesh->ebos[0]);
     glBindVertexArray(0);
-    buffer_unbind(&mesh->vertex_buffers[0]);
-    buffer_unbind(&mesh->element_buffers[0]);
+    vbo_unbind(&mesh->vbos[0]);
+    ebo_unbind(&mesh->ebos[0]);
     return 0;
   }
   return 1;
@@ -53,16 +53,16 @@ u8 mesh_create(mesh_t* mesh)
 u8 mesh_push(mesh_t* mesh, u32 vertex_count, u32 vertex_size, u32 element_count, u32 element_size)
 {
   u8 status = 0;
-  status |= buffer_create(&mesh->vertex_buffers[mesh->sub_count], buffer_vertex, vertex_count, vertex_size, NULL);
-  status |= buffer_create(&mesh->element_buffers[mesh->sub_count], buffer_element, element_count, element_size, NULL);
+  status |= vbo_create(&mesh->vbos[mesh->sub_count], vertex_count, vertex_size, NULL);
+  status |= ebo_create(&mesh->ebos[mesh->sub_count], element_count, element_size, NULL);
   mesh->sub_count++;
   return status;
 }
 void mesh_pop(mesh_t* mesh)
 {
   mesh->sub_count--;
-  buffer_destroy(&mesh->vertex_buffers[mesh->sub_count]);
-  buffer_destroy(&mesh->element_buffers[mesh->sub_count]);
+  vbo_destroy(&mesh->vbos[mesh->sub_count]);
+  ebo_destroy(&mesh->ebos[mesh->sub_count]);
 }
 void mesh_batch(mesh_t* mesh)
 {
@@ -84,7 +84,7 @@ void mesh_draw_triangles(mesh_t* mesh, u32 count)
 {
   glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, NULL);
 }
-void mesh_unbind(mesh_t* mesh)
+void mesh_unbind()
 {
   glBindVertexArray(0);
 }

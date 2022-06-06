@@ -62,8 +62,8 @@ void gizmo_push_line(r32v3 a, r32v3 b, r32v4 c)
     line_vertex_offset + 0,
     line_vertex_offset + 1,
   };
-  memcpy(((vertex_line_t*)line_mesh.vertex_buffers[0].data) + line_vertex_offset, vertices, sizeof(vertices));
-  memcpy(((u32*)line_mesh.element_buffers[0].data) + line_element_offset, elements, sizeof(elements));
+  memcpy(((vertex_line_t*)line_mesh.vbos[0].data) + line_vertex_offset, vertices, sizeof(vertices));
+  memcpy(((u32*)line_mesh.ebos[0].data) + line_element_offset, elements, sizeof(elements));
   line_vertex_offset += 2;
   line_element_offset += 2;
 }
@@ -107,8 +107,8 @@ void gizmo_push_box(r32v3 p, r32v3 s, r32v4 c)
     line_vertex_offset + 3,
     line_vertex_offset + 7,
   };
-  memcpy(((vertex_line_t*)line_mesh.vertex_buffers[0].data) + line_vertex_offset, vertices, sizeof(vertices));
-  memcpy(((u32*)line_mesh.element_buffers[0].data) + line_element_offset, elements, sizeof(elements));
+  memcpy(((vertex_line_t*)line_mesh.vbos[0].data) + line_vertex_offset, vertices, sizeof(vertices));
+  memcpy(((u32*)line_mesh.ebos[0].data) + line_element_offset, elements, sizeof(elements));
   line_vertex_offset += 8;
   line_element_offset += 24;
 }
@@ -167,21 +167,24 @@ void gizmo_push_text(r32v3 p, r32v3 s, i8 const* str, r32v4 c)
 }
 void gizmo_render()
 {
-  shader_bind(&line_shader);
-  shader_uniform_r32m4(&line_shader, "projection", ECS_CAMERA(player)->projection);
-  shader_uniform_r32m4(&line_shader, "view", ECS_CAMERA(player)->view);
-  mesh_bind(&line_mesh);
-  buffer_bind(&line_mesh.vertex_buffers[0]);
-  //buffer_clear(&line_mesh.vertex_buffers[0], prev_line_vertex_offset);
-  buffer_sync(&line_mesh.vertex_buffers[0], line_vertex_offset, transfer_to_gpu);
-  buffer_bind(&line_mesh.element_buffers[0]);
-  //buffer_clear(&line_mesh.element_buffers[0], prev_line_element_offset);
-  buffer_sync(&line_mesh.element_buffers[0], line_element_offset, transfer_to_gpu);
-  mesh_draw_lines(&line_mesh, line_element_offset);
-  buffer_unbind(&line_mesh.element_buffers[0]);
-  buffer_unbind(&line_mesh.vertex_buffers[0]);
-  mesh_unbind(&line_mesh);
-  shader_unbind(&line_shader);
+  if (player != NULL)
+  {
+    shader_bind(&line_shader);
+    shader_uniform_r32m4(&line_shader, "projection", ECS_CAMERA(player)->projection);
+    shader_uniform_r32m4(&line_shader, "view", ECS_CAMERA(player)->view);
+    mesh_bind(&line_mesh);
+    vbo_bind(&line_mesh.vbos[0]);
+    //vbo_clear(&line_mesh.vbos[0], prev_line_vertex_offset);
+    vbo_host_to_device(&line_mesh.vbos[0], line_vertex_offset);
+    ebo_bind(&line_mesh.ebos[0]);
+    //ebo_clear(&line_mesh.ebos[0], prev_line_element_offset);
+    ebo_host_to_device(&line_mesh.ebos[0], line_element_offset);
+    mesh_draw_lines(&line_mesh, line_element_offset);
+    ebo_unbind();
+    vbo_unbind();
+    mesh_unbind();
+    shader_unbind();
+  }
   prev_line_vertex_offset = line_vertex_offset;
   prev_line_element_offset = line_element_offset;
   line_vertex_offset = 0;

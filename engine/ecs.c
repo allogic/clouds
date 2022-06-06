@@ -6,7 +6,7 @@
 
 #include <ecs.h>
 #include <physic.h>
-#include <buffer.h>
+#include <sbo.h>
 
 static u32 unique_id = 0;
 static u32 transform_id = 0;
@@ -20,8 +20,8 @@ static static_queue_t render_queue;
 
 static queue_proc_t procedures[64];
 
-extern buffer_t transforms;
-extern buffer_t rigidbodies;
+extern sbo_t transforms;
+extern sbo_t rigidbodies;
 
 u8 ecs_create()
 {

@@ -160,7 +160,7 @@ void shader_execute(shader_t* shader, u32 x, u32 y, u32 z)
 {
   glDispatchCompute(x, y, z);
 }
-void shader_unbind(shader_t* shader)
+void shader_unbind()
 {
   glUseProgram(0);
 }

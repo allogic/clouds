@@ -3,7 +3,8 @@
 
 #include <core/types.h>
 
-#include <buffer.h>
+#include <vbo.h>
+#include <ebo.h>
 
 typedef enum
 {
@@ -15,8 +16,8 @@ typedef enum
 typedef struct
 {
   mesh_type_t type;
-  buffer_t vertex_buffers[256];
-  buffer_t element_buffers[256];
+  vbo_t vbos[256];
+  ebo_t ebos[256];
   u32 sub_count;
   u32 vao;
 } mesh_t;
@@ -29,7 +30,7 @@ void mesh_assign(mesh_t* mesh);
 void mesh_bind(mesh_t* mesh);
 void mesh_draw_lines(mesh_t* mesh, u32 count);
 void mesh_draw_triangles(mesh_t* mesh, u32 count);
-void mesh_unbind(mesh_t* mesh);
+void mesh_unbind();
 void mesh_destroy(mesh_t* mesh);
 
 #endif

@@ -24,7 +24,7 @@ void shader_bind(shader_t* shader);
 void shader_uniform_r32(shader_t* shader, i8 const* uniform_name, r32 v);
 void shader_uniform_r32m4(shader_t* shader, i8 const* uniform_name, r32m4 m);
 void shader_execute(shader_t* shader, u32 x, u32 y, u32 z);
-void shader_unbind(shader_t* shader);
+void shader_unbind();
 void shader_destroy(shader_t* shader);
 
 #endif
