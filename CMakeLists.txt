@@ -6,6 +6,8 @@ project(candbox VERSION 0.0.1 LANGUAGES C)
 
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(ENGINE_DIR ${ROOT_DIR}/engine)
+set(SHADER_DIR ${ROOT_DIR}/shader)
+set(SANDBOX_DIR ${ROOT_DIR}/sandbox)
 set(GLAD_DIR ${ROOT_DIR}/glad)
 set(CGLM_DIR ${ROOT_DIR}/cglm)
 set(GLFW_DIR ${ROOT_DIR}/glfw)

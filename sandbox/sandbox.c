@@ -5,7 +5,7 @@
 #include <entities/world.h>
 #include <entities/player.h>
 
-#include <sandbox/sandbox.h>
+#include <sandbox.h>
 
 u32 window_width = 1280;
 u32 window_height = 720;

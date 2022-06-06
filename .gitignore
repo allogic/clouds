@@ -11,7 +11,8 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
-.vs
+.vs/
+out/
 cglm/
 glad/
 glfw/

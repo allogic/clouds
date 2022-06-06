@@ -13,7 +13,7 @@
 #include <camera.h>
 #include <events.h>
 
-#include <sandbox/sandbox.h>
+#include <sandbox.h>
 
 extern u32 window_width;
 extern u32 window_height;
