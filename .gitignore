@@ -17,5 +17,4 @@ cglm/
 glad/
 glfw/
 openal/
-static/
-shared/
+bin/

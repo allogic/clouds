@@ -1,14 +1,12 @@
 # PATHS
-$static_dir = (Join-Path $PSScriptRoot "\static\");
-$shared_dir = (Join-Path $PSScriptRoot "\shared\");
+$bin_dir = (Join-Path $PSScriptRoot "\bin\");
 $glad_dir = (Join-Path $PSScriptRoot "\glad\")
 $glfw_dir = (Join-Path $PSScriptRoot "\glfw\")
 $cglm_dir = (Join-Path $PSScriptRoot "\cglm\")
 $openal_dir = (Join-Path $PSScriptRoot "\openal\")
 
-# LIBS
-New-Item -ItemType Directory -Force -Path $static_dir
-New-Item -ItemType Directory -Force -Path $shared_dir
+# BIN
+New-Item -ItemType Directory -Force -Path $bin_dir
 
 # GLAD
 if (Test-Path -Path $glad_dir) { Remove-Item $glad_dir -Recurse -Force }
@@ -25,8 +23,8 @@ cmake -DGLFW_BUILD_DOCS=OFF
 cmake -DGLFW_INSTALL=OFF
 cmake -G "Visual Studio 17" .
 . "C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MsBuild.exe" GLFW.sln /property:Configuration=MinSizeRel
-Copy-Item (Join-Path $glfw_dir "\src\MinSizeRel\glfw3dll.lib") (Join-Path $static_dir "\glfw.lib") -Force
-Copy-Item (Join-Path $glfw_dir "\src\MinSizeRel\glfw3.dll") (Join-Path $shared_dir "\glfw.dll") -Force
+Copy-Item (Join-Path $glfw_dir "\src\MinSizeRel\glfw3dll.lib") (Join-Path $bin_dir "\glfw.lib") -Force
+Copy-Item (Join-Path $glfw_dir "\src\MinSizeRel\glfw3.dll") (Join-Path $bin_dir "\glfw.dll") -Force
 cd ..
 
 # CGLM
@@ -39,8 +37,8 @@ cmake -DCGLM_USE_C99=OFF
 cmake -DCGLM_USE_TEST=OFF
 cmake -G "Visual Studio 17" .
 . "C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MsBuild.exe" cglm.sln /property:Configuration=MinSizeRel
-Copy-Item (Join-Path $cglm_dir "\MinSizeRel\cglm.lib") (Join-Path $static_dir "\cglm.lib") -Force
-Copy-Item (Join-Path $cglm_dir "\MinSizeRel\cglm-0.dll") (Join-Path $shared_dir "\cglm.dll") -Force
+Copy-Item (Join-Path $cglm_dir "\MinSizeRel\cglm.lib") (Join-Path $bin_dir "\cglm.lib") -Force
+Copy-Item (Join-Path $cglm_dir "\MinSizeRel\cglm-0.dll") (Join-Path $bin_dir "\cglm.dll") -Force
 cd ..
 
 # OPENAL
@@ -53,6 +51,6 @@ cmake -DALSOFT_UTILS=OFF
 cmake -DALSOFT_UPDATE_BUILD_VERSION=OFF
 cmake -G "Visual Studio 17" .
 . "C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MsBuild.exe" OpenAL.sln /property:Configuration=MinSizeRel
-Copy-Item (Join-Path $openal_dir "\MinSizeRel\OpenAL32.lib") (Join-Path $static_dir "\openal.lib") -Force
-Copy-Item (Join-Path $openal_dir "\MinSizeRel\OpenAL32.dll") (Join-Path $shared_dir "\openal.dll") -Force
+Copy-Item (Join-Path $openal_dir "\MinSizeRel\OpenAL32.lib") (Join-Path $bin_dir "\openal.lib") -Force
+Copy-Item (Join-Path $openal_dir "\MinSizeRel\OpenAL32.dll") (Join-Path $bin_dir "\openal.dll") -Force
 cd ..
