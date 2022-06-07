@@ -7,15 +7,17 @@
 #include <core/types.h>
 
 #include <ecs.h>
+#include <update.h>
 #include <renderer.h>
 #include <physic.h>
 #include <events.h>
+#include <asset_db.h>
 #include <sound.h>
 
 #include <sandbox.h>
 
-extern u32 window_width;
-extern u32 window_height;
+extern r32v2 window_size;
+r32v2 mouse_position;
 
 extern r32 ticks_render;
 extern r32 ticks_physic;
@@ -36,8 +38,6 @@ static u8 status = 0;
 
 extern entity_t* player;
 
-r32v2 mouse_position;
-
 static void glfw_debug_proc(i32 error, i8 const* msg)
 {
   printf(msg);
@@ -48,8 +48,8 @@ static void glfw_close_proc(GLFWwindow* window)
 }
 static void glfw_resize_proc(GLFWwindow* window, i32 width, i32 height)
 {
-  window_width = (u32)width;
-  window_height = (u32)height;
+  window_size[0] = (r32)width;
+  window_size[1] = (r32)height;
   if (player != NULL)
   {
     ECS_CAMERA(player)->aspect = (r32)width / (r32)height;
@@ -81,27 +81,15 @@ static void gl_debug_proc(u32 source, u32 type, u32 id, u32 severity, i32 length
   }
 }
 
-void engine_fps()
-{
-  prev_fps_time = (r32)glfwGetTime();
-  fps_count++;
-  if ((time - prev_fps_time) > 1.0f)
-  {
-    sprintf_s(fps_title, sizeof(fps_title), "%u", fps_count);
-    glfwSetWindowTitle(window, fps_title);
-    fps_count = 0;
-    prev_fps_time = (r32)glfwGetTime();
-  }
-}
 void engine_update()
 {
-  ecs_dispatch_update();
+  update_step();
 }
 void engine_render()
 {
   if ((time - prev_render_time) >= ticks_render)
   {
-    renderer_render(delta_time);
+    renderer_new_frame();
     glfwSwapBuffers(window);
     prev_render_time = time;
   }
@@ -110,13 +98,13 @@ void engine_physic()
 {
   if ((time - prev_physic_time) >= ticks_physic)
   {
-    physic_simulate(delta_time);
+    physic_step(0.1f);
     prev_physic_time = time;
   }
 }
 void engine_sound()
 {
-  sound_update();
+  sound_step();
 }
 
 i32 main()
@@ -129,7 +117,7 @@ i32 main()
     glfwWindowHint(GLFW_SAMPLES, 16);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    window = glfwCreateWindow(window_width, window_height, "", NULL, NULL);
+    window = glfwCreateWindow((i32)window_size[0], (i32)window_size[1], "", NULL, NULL);
     if (window)
     {
       glfwSetWindowCloseCallback(window, glfw_close_proc);
@@ -143,7 +131,9 @@ i32 main()
       {
         glDebugMessageCallback(gl_debug_proc, 0);
         glEnable(GL_DEBUG_OUTPUT);
+        status |= asset_db_create();
         status |= ecs_create();
+        status |= update_create();
         status |= renderer_create();
         status |= physic_create();
         status |= sound_create();
@@ -153,7 +143,6 @@ i32 main()
           time = (r32)glfwGetTime();
           delta_time = time - prev_time;
           events_poll(window);
-          engine_fps();
           engine_update();
           engine_render();
           engine_physic();
@@ -164,7 +153,9 @@ i32 main()
         sound_destroy();
         physic_destroy();
         renderer_destroy();
+        update_destroy();
         ecs_destroy();
+        asset_db_destroy();
       }
       else
       {

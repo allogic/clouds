@@ -1,6 +1,6 @@
 #include <components/rigidbody.h>
 
-void rigidbody_identity(rigidbody_t* rigidbody)
+u8 rigidbody_create(rigidbody_t* rigidbody)
 {
   rigidbody->position_velocity[0] = 0.0f;
   rigidbody->position_velocity[1] = 0.0f;
@@ -13,6 +13,7 @@ void rigidbody_identity(rigidbody_t* rigidbody)
   rigidbody->position_drag = 0.2f;
   rigidbody->rotation_drag = 0.5f;
   rigidbody->mass = 100.0f;
+  return 0;
 }
 void rigidbody_add_velocity_position(rigidbody_t* rigidbody, r32v4 accel)
 {

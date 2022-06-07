@@ -25,7 +25,7 @@ u8 sound_create()
   }
   return 1;
 }
-void sound_update()
+void sound_step()
 {
 
 }

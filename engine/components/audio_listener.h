@@ -8,4 +8,6 @@ typedef struct
   u32 dummy;
 } audio_listener_t;
 
+u8 audio_listener_create(audio_listener_t* audio_listener);
+
 #endif

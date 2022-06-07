@@ -23,7 +23,7 @@ typedef struct
 #define TRANSFORM_ROTATION(TRANSFORM) (TRANSFORM->model[1])
 #define TRANSFORM_SCALE(TRANSFORM) (TRANSFORM->model[2])
 
-void transform_identity(transform_t* transform);
+u8 transform_create(transform_t* transform);
 void transform_toggle(transform_t* transform, transform_ctrl_t ctrl);
 void transform_set_position(transform_t* transform, r32 x, r32 y, r32 z);
 void transform_set_rotation(transform_t* transform, r32 x, r32 y, r32 z);

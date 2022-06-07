@@ -3,8 +3,12 @@
 
 #include <core/types.h>
 
+#include <ecs.h>
+
 #define GIZMO_NUM_VERTEX_LINE ((u32)32*32*32*32)
 #define GIZMO_NUM_VERTEX_TEXT ((u32)32*32*32*32)
+
+void gizmo_queue_proc(entity_t* entity);
 
 u8 gizmo_create();
 void gizmo_push_line(r32v3 a, r32v3 b, r32v4 c);

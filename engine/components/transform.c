@@ -4,7 +4,7 @@
 
 #include <components/transform.h>
 
-void transform_identity(transform_t* transform)
+u8 transform_create(transform_t* transform)
 {
   transform->model[0][0] = 0.0f;
   transform->model[0][1] = 0.0f;
@@ -29,6 +29,7 @@ void transform_identity(transform_t* transform)
   transform->local_front[2] = front[2];
   transform->mask = 0;
   transform->rigidbody_id = -1;
+  return 0;
 }
 void transform_toggle(transform_t* transform, transform_ctrl_t ctrl)
 {

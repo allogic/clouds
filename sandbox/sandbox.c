@@ -7,8 +7,7 @@
 
 #include <sandbox.h>
 
-u32 window_width = 1280;
-u32 window_height = 720;
+r32v2 window_size = { 1280, 720 };
 
 r32 ticks_render = 1.0f / 60;
 r32 ticks_physic = 1.0f / 60;

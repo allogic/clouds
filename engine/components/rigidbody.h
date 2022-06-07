@@ -13,7 +13,7 @@ typedef struct
   r32 reserved[1];
 } rigidbody_t;
 
-void rigidbody_identity(rigidbody_t* rigidbody);
+u8 rigidbody_create(rigidbody_t* rigidbody);
 void rigidbody_add_velocity_position(rigidbody_t* rigidbody, r32v4 accel);
 void rigidbody_add_velocity_rotation(rigidbody_t* rigidbody, r32v4 accel);
 void rigidbody_add_velocity_pitch(rigidbody_t* rigidbody, r32 pitch);

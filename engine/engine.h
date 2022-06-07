@@ -3,7 +3,6 @@
 
 #include <core/types.h>
 
-void engine_fps();
 void engine_update();
 void engine_render();
 void engine_physic();

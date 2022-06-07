@@ -13,7 +13,7 @@ u8 renderer_create()
   status |= gizmo_create();
   return status;
 }
-void renderer_render()
+void renderer_new_frame()
 {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

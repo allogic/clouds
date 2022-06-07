@@ -11,11 +11,10 @@ typedef enum
   mesh_line,
   mesh_text,
   mesh_pbr,
-} mesh_type_t;
+} mesh_layout_t;
 
 typedef struct
 {
-  mesh_type_t type;
   vbo_t vbos[256];
   ebo_t ebos[256];
   u32 sub_count;
@@ -24,7 +23,8 @@ typedef struct
 
 u8 mesh_create(mesh_t* mesh);
 u8 mesh_push(mesh_t* mesh, u32 vertex_count, u32 vertex_size, u32 element_count, u32 element_size);
-void mesh_pop(mesh_t* mesh);
+u8 mesh_pop(mesh_t* mesh);
+u8 mesh_select_layout(mesh_t* mesh, u32 index, mesh_layout_t layout);
 void mesh_batch(mesh_t* mesh);
 void mesh_assign(mesh_t* mesh);
 void mesh_bind(mesh_t* mesh);

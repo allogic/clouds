@@ -1,10 +1,10 @@
 #include <glfw3.h>
 #include <cglm.h>
 
-#include <ecs.h>
 #include <gizmo.h>
 #include <constants.h>
 #include <events.h>
+#include <vertex.h>
 
 #include <entities/player.h>
 #include <entities/world.h>
@@ -13,11 +13,8 @@
 #define BOOST_AMOUNT 0.001f
 #define DRIFT_AMOUNT 0.0002f
 
-extern u32 window_width;
-extern u32 window_height;
-
+extern r32v2 window_size;
 extern r32v2 mouse_position;
-
 extern r32 delta_time;
 
 entity_t* player = NULL;
@@ -26,6 +23,7 @@ static transform_t* transform = NULL;
 static camera_t* camera = NULL;
 static rigidbody_t* rigidbody = NULL;
 static mesh_t* mesh = NULL;
+static audio_listener_t* audio_listener = NULL;
 
 void update_player_proc(entity_t* entity)
 {
@@ -41,7 +39,7 @@ void update_player_proc(entity_t* entity)
 
   // Handle states
   u8 drifting = key_held(GLFW_KEY_LEFT_SHIFT) && key_held(GLFW_KEY_SPACE) && (glm_vec3_distance(zero, rigidbody->position_velocity) > 2.0f);
-  u8 breaking = key_held(GLFW_KEY_SPACE) && (drifting == 0);
+  u8 breaking = key_held(GLFW_KEY_LEFT_CONTROL) && (drifting == 0);
   u8 boosting = key_held(GLFW_KEY_LEFT_SHIFT) && (drifting == 0) && (breaking == 0);
   if (drifting) player_drift();
   if (breaking) player_break();
@@ -89,20 +87,17 @@ void gizmo_player_proc(entity_t* entity)
 u8 player_create()
 {
   u8 status = 0;
-  player = ecs_push();
-  transform = ecs_attach_transform(player);
-  camera = ecs_attach_camera(player);
-  camera->aspect = (r32)window_width / (r32)window_height;
-  camera->fov = 45.0f;
-  camera->near = 0.001f;
-  camera->far = 100000.0f;
-  rigidbody = ecs_attach_rigidbody(player);
-  mesh = ecs_attach_mesh(player);
-  status |= mesh_push(mesh, 1, 1, 1, 1);
-  status |= mesh_create(mesh);
-  ecs_register_dynamic(player, proc_idx_update, proc_bit_update, update_player_proc);
-  ecs_register_dynamic(player, proc_idx_gizmo, proc_bit_gizmo, gizmo_player_proc);
-  ecs_update_queues(player);
+  player = ecs_create_entity();
+  transform = ecs_attach_transform(player, &status);
+  camera = ecs_attach_camera(player, &status);
+  rigidbody = ecs_attach_rigidbody(player, &status);
+  mesh = ecs_attach_mesh(player, &status);
+  audio_listener = ecs_attach_audio_listener(player, &status);
+  status |= mesh_push(mesh, 3, sizeof(vertex_pbr_t), 3, sizeof(u32));
+  status |= mesh_select_layout(mesh, 0, mesh_pbr);
+  status |= ecs_register_dynamic(player, proc_idx_update, proc_bit_update, update_player_proc);
+  status |= ecs_register_dynamic(player, proc_idx_gizmo, proc_bit_gizmo, gizmo_player_proc);
+  status |= ecs_update_queues(player);
   return status;
 }
 void player_break()

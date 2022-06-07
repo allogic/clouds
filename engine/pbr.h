@@ -5,7 +5,7 @@
 
 #include <ecs.h>
 
-void render_queue_proc(entity_t* entity);
+void pbr_queue_proc(entity_t* entity);
 
 u8 pbr_create();
 void pbr_render();

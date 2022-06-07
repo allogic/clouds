@@ -6,7 +6,7 @@
 #include <ecs.h>
 
 u8 renderer_create();
-void renderer_render();
+void renderer_new_frame();
 void renderer_destroy();
 
 #endif

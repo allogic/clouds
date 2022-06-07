@@ -13,4 +13,6 @@ typedef struct
   r32m4 view;
 } camera_t;
 
+u8 camera_create(camera_t* camera);
+
 #endif

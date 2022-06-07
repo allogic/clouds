@@ -39,15 +39,23 @@ static u32 line_element_offset = 0;
 static u32 prev_line_vertex_offset = 0;
 static u32 prev_line_element_offset = 0;
 
+void gizmo_queue_proc(entity_t* entity)
+{
+  ecs_call_available_procedures(entity, dispatch_gizmo);
+}
+
 u8 gizmo_create()
 {
   u8 status = 0;
   status |= shader_create(&line_shader);
   status |= shader_create(&text_shader);
-  status |= mesh_push(&line_mesh, GIZMO_NUM_VERTEX_LINE, sizeof(vertex_line_t), GIZMO_NUM_VERTEX_LINE * 2, sizeof(u32));
-  status |= mesh_push(&text_mesh, GIZMO_NUM_VERTEX_TEXT, sizeof(vertex_text_t), GIZMO_NUM_VERTEX_TEXT * 2, sizeof(u32));
   status |= mesh_create(&line_mesh);
   status |= mesh_create(&text_mesh);
+  status |= mesh_push(&line_mesh, GIZMO_NUM_VERTEX_LINE, sizeof(vertex_line_t), GIZMO_NUM_VERTEX_LINE * 2, sizeof(u32));
+  status |= mesh_push(&text_mesh, GIZMO_NUM_VERTEX_TEXT, sizeof(vertex_text_t), GIZMO_NUM_VERTEX_TEXT * 2, sizeof(u32));
+  status |= mesh_select_layout(&line_mesh, 0, mesh_line);
+  status |= mesh_select_layout(&text_mesh, 0, mesh_text);
+  status |= ecs_register_static(queue_idx_gizmo, gizmo_queue_proc);
   return status;
 }
 void gizmo_push_line(r32v3 a, r32v3 b, r32v4 c)
@@ -172,6 +180,7 @@ void gizmo_render()
     shader_bind(&line_shader);
     shader_uniform_r32m4(&line_shader, "projection", ECS_CAMERA(player)->projection);
     shader_uniform_r32m4(&line_shader, "view", ECS_CAMERA(player)->view);
+    ecs_dispatch_gizmo();
     mesh_bind(&line_mesh);
     vbo_bind(&line_mesh.vbos[0]);
     //vbo_clear(&line_mesh.vbos[0], prev_line_vertex_offset);
@@ -192,6 +201,8 @@ void gizmo_render()
 }
 void gizmo_destroy()
 {
+  mesh_pop(&text_mesh);
+  mesh_pop(&line_mesh);
   mesh_destroy(&text_mesh);
   mesh_destroy(&line_mesh);
   shader_destroy(&text_shader);

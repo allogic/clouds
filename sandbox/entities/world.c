@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <ecs.h>
 #include <vertex.h>
 #include <gizmo.h>
 #include <constants.h>
@@ -35,16 +34,17 @@ u8 world_create()
     z = (rand() % 20000) - (20000 / 2.0f);
     for (j = 0; j < CHUNK_NUM_LEAFS; j++)
     {
-      chunks[i][j] = ecs_push();
-      transform_t* transform = ecs_attach_transform(chunks[i][j]);
+      chunks[i][j] = ecs_create_entity();
+      transform_t* transform = ecs_attach_transform(chunks[i][j], &status);
       transform_set_position(transform, x, y, z);
       transform_set_rotation(transform, 0.0f, 0.0f, 0.0f);
       transform_set_scale(transform, 32.0f, 300.0f, 32.0f);
-      mesh_t* mesh = ecs_attach_mesh(chunks[i][j]);
+      mesh_t* mesh = ecs_attach_mesh(chunks[i][j], &status);
       status |= mesh_push(mesh, 3, sizeof(vertex_pbr_t), 3, sizeof(u32));
-      status |= mesh_create(mesh);
-      ecs_register_dynamic(chunks[i][j], proc_idx_gizmo, proc_bit_gizmo, gizmo_chunk_proc);
-      ecs_update_queues(chunks[i][j]);
+      status |= mesh_select_layout(mesh, 0, mesh_pbr);
+      audio_listener_t* audio_listener = ecs_attach_audio_listener(chunks[i][j], &status);
+      status |= ecs_register_dynamic(chunks[i][j], proc_idx_gizmo, proc_bit_gizmo, gizmo_chunk_proc);
+      status |= ecs_update_queues(chunks[i][j]);
     }
   }
   return status;

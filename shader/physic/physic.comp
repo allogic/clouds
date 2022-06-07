@@ -64,7 +64,7 @@ layout (binding = 1, std430) buffer Rigidbodies
 // Uniforms
 ////////////////////////////////////////////////////////
 
-uniform float time;
+uniform float steps_size;
 
 ////////////////////////////////////////////////////////
 // Functions
@@ -174,10 +174,10 @@ void main()
   if (bool(transforms[i].mask & TRANSFORM_DYNAMIC))
   {
     // Apply position drag
-    rigidbodies[j].position_velocity += -rigidbodies[j].position_velocity * rigidbodies[j].position_drag * time;
+    rigidbodies[j].position_velocity += -rigidbodies[j].position_velocity * rigidbodies[j].position_drag * steps_size;
 
     // Apply rotation drag
-    rigidbodies[j].rotation_velocity += -rigidbodies[j].rotation_velocity * rigidbodies[j].rotation_drag * time;
+    rigidbodies[j].rotation_velocity += -rigidbodies[j].rotation_velocity * rigidbodies[j].rotation_drag * steps_size;
 
     // Apply position velocity
     transforms[i].position += rigidbodies[j].position_velocity;
