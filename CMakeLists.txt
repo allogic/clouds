@@ -11,5 +11,6 @@ set(GLAD_DIR ${ROOT_DIR}/glad)
 set(CGLM_DIR ${ROOT_DIR}/cglm)
 set(GLFW_DIR ${ROOT_DIR}/glfw)
 set(OPENAL_DIR ${ROOT_DIR}/openal)
+set(ALUT_DIR ${ROOT_DIR}/alut)
 
 add_subdirectory(engine)

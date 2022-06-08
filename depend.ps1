@@ -4,6 +4,7 @@ $glad_dir = (Join-Path $PSScriptRoot "\glad\")
 $glfw_dir = (Join-Path $PSScriptRoot "\glfw\")
 $cglm_dir = (Join-Path $PSScriptRoot "\cglm\")
 $openal_dir = (Join-Path $PSScriptRoot "\openal\")
+$alut_dir = (Join-Path $PSScriptRoot "\alut\")
 
 # BIN
 New-Item -ItemType Directory -Force -Path $bin_dir
@@ -54,3 +55,7 @@ cmake -G "Visual Studio 17" .
 Copy-Item (Join-Path $openal_dir "\MinSizeRel\OpenAL32.lib") (Join-Path $bin_dir "\openal.lib") -Force
 Copy-Item (Join-Path $openal_dir "\MinSizeRel\OpenAL32.dll") (Join-Path $bin_dir "\openal.dll") -Force
 cd ..
+
+# ALUT
+if (Test-Path -Path $alut_dir) { Remove-Item $alut_dir -Recurse -Force }
+git clone "https://github.com/allogic/alut"

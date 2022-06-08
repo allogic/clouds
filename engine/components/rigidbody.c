@@ -13,6 +13,7 @@ u8 rigidbody_create(rigidbody_t* rigidbody)
   rigidbody->position_drag = 0.2f;
   rigidbody->rotation_drag = 0.5f;
   rigidbody->mass = 100.0f;
+  rigidbody->rigidbody_id = -1;
   return 0;
 }
 void rigidbody_add_velocity_position(rigidbody_t* rigidbody, r32v4 accel)

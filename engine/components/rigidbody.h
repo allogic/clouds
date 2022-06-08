@@ -10,7 +10,7 @@ typedef struct
   r32 position_drag;
   r32 rotation_drag;
   r32 mass;
-  r32 reserved[1];
+  i32 rigidbody_id;
 } rigidbody_t;
 
 u8 rigidbody_create(rigidbody_t* rigidbody);

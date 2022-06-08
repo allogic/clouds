@@ -1,5 +1,14 @@
 #include <core/file_system.h>
 
+#ifdef OS_WINDOWS
+  #define _AMD64_
+  #define WIN32_LEAN_AND_MEAN
+  #include <handleapi.h>
+  #include <fileapi.h>
+#elif OS_UNIX
+
+#endif
+
 u8* file_load(i8 const* file_path)
 {
   u8* source = NULL;

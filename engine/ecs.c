@@ -14,10 +14,11 @@ static u32 rigidbody_id = 0;
 
 static fwd_list_t entities;
 
-static static_queue_t update_queue;
-static static_queue_t physic_queue;
-static static_queue_t gizmo_queue;
-static static_queue_t pbr_queue;
+static static_queue_t queue_update;
+static static_queue_t queue_physic;
+static static_queue_t queue_gizmo;
+static static_queue_t queue_pbr;
+static static_queue_t queue_sound;
 
 static queue_proc_t procedures[64];
 
@@ -27,10 +28,11 @@ extern sbo_t rigidbodies;
 u8 ecs_create()
 {
   fwd_list_create(&entities);
-  static_queue_create(&update_queue, ECS_UPDATE_QUEUE_SIZE, sizeof(entity_t*));
-  static_queue_create(&physic_queue, ECS_PHYSIC_QUEUE_SIZE, sizeof(entity_t*));
-  static_queue_create(&gizmo_queue, ECS_GIZMO_QUEUE_SIZE, sizeof(entity_t*));
-  static_queue_create(&pbr_queue, ECS_PBR_QUEUE_SIZE, sizeof(entity_t*));
+  static_queue_create(&queue_update, ECS_UPDATE_QUEUE_SIZE, sizeof(entity_t*));
+  static_queue_create(&queue_physic, ECS_PHYSIC_QUEUE_SIZE, sizeof(entity_t*));
+  static_queue_create(&queue_gizmo, ECS_GIZMO_QUEUE_SIZE, sizeof(entity_t*));
+  static_queue_create(&queue_pbr, ECS_PBR_QUEUE_SIZE, sizeof(entity_t*));
+  static_queue_create(&queue_sound, ECS_SOUND_QUEUE_SIZE, sizeof(entity_t*));
   return 0;
 }
 entity_t* ecs_create_entity()
@@ -46,55 +48,69 @@ void ecs_erase(entity_t* entity)
 {
   fwd_list_erase(&entities, entity);
 }
-transform_t* ecs_attach_transform(entity_t* entity, u8* status)
+transform_t* ecs_attach_transform(entity_t* entity, transform_t* parent, u8* status)
 {
-  entity->components[comp_idx_transform] = &((transform_t*)transforms.data)[transform_id++];
+  transform_t* transform = NULL;
+  entity->components[comp_idx_transform] = &((transform_t*)transforms.data)[transform_id];
   entity->comp_mask |= comp_bit_transform;
-  *status |= transform_create(ECS_TRANSFORM(entity));
-  assert(*status == 0);
-  return ECS_TRANSFORM(entity);
+  transform = ECS_TRANSFORM(entity);
+  *status |= transform_create(transform);
+  transform->transform_id = transform_id;
+  if (parent != NULL)
+  {
+    transform->transform_parent_id = parent->transform_id;
+  }
+  transform_id++;
+  return transform;
 }
 camera_t* ecs_attach_camera(entity_t* entity, u8* status)
 {
+  camera_t* camera = NULL;
   entity->components[comp_idx_camera] = calloc(1, sizeof(camera_t));
   entity->comp_mask |= comp_bit_camera;
-  *status |= camera_create(ECS_CAMERA(entity));
-  assert(*status == 0);
-  return ECS_CAMERA(entity);
+  camera = ECS_CAMERA(entity);
+  *status |= camera_create(camera);
+  return camera;
 }
 mesh_t* ecs_attach_mesh(entity_t* entity, u8* status)
 {
+  mesh_t* mesh = NULL;
   entity->components[comp_idx_mesh] = calloc(1, sizeof(mesh_t));
   entity->comp_mask |= comp_bit_mesh;
-  *status |= mesh_create(ECS_MESH(entity));
-  assert(*status == 0);
-  return ECS_MESH(entity);
+  mesh = ECS_MESH(entity);
+  *status |= mesh_create(mesh);
+  return mesh;
 }
 rigidbody_t* ecs_attach_rigidbody(entity_t* entity, u8* status)
 {
+  rigidbody_t* rigidbody = NULL;
   ECS_TRANSFORM(entity)->rigidbody_id = rigidbody_id;
-  entity->components[comp_idx_rigidbody] = &((rigidbody_t*)rigidbodies.data)[rigidbody_id++];
+  entity->components[comp_idx_rigidbody] = &((rigidbody_t*)rigidbodies.data)[rigidbody_id];
   entity->comp_mask |= comp_bit_rigibody;
-  *status |= rigidbody_create(ECS_RIGIDBODY(entity));
+  rigidbody = ECS_RIGIDBODY(entity);
+  *status |= rigidbody_create(rigidbody);
+  rigidbody->rigidbody_id = rigidbody_id;
   ECS_TRANSFORM(entity)->mask |= transform_dynamic;
-  assert(*status == 0);
-  return ECS_RIGIDBODY(entity);
+  rigidbody_id++;
+  return rigidbody;
 }
 audio_listener_t* ecs_attach_audio_listener(entity_t* entity, u8* status)
 {
+  audio_listener_t* audio_listener = NULL;
   entity->components[comp_idx_audio_listener] = calloc(1, sizeof(audio_listener_t));
   entity->comp_mask |= comp_bit_audio_listener;
-  *status |= audio_listener_create(ECS_AUDIO_LISTENER(entity));
-  assert(*status == 0);
-  return ECS_AUDIO_LISTENER(entity);
+  audio_listener = ECS_AUDIO_LISTENER(entity);
+  *status |= audio_listener_create(audio_listener);
+  return audio_listener;
 }
 audio_source_t* ecs_attach_audio_source(entity_t* entity, u8* status)
 {
+  audio_source_t* audio_source = NULL;
   entity->components[comp_idx_audio_source] = calloc(1, sizeof(audio_source_t));
   entity->comp_mask |= comp_bit_audio_source;
-  *status |= audio_source_create(ECS_AUDIO_SOURCE(entity));
-  assert(*status == 0);
-  return ECS_AUDIO_SOURCE(entity);
+  audio_source = ECS_AUDIO_SOURCE(entity);
+  *status |= audio_source_create(audio_source);
+  return audio_source;
 }
 u8 ecs_register_static(u32 index, queue_proc_t proc)
 {
@@ -118,10 +134,11 @@ u8 ecs_register_dynamic(entity_t* entity, u32 index, u64 bit, queue_proc_t proc)
 u8 ecs_update_queues(entity_t* entity)
 {
   u8 status = 0;
-  if ((entity->comp_mask & queue_mask_update) == queue_mask_update) status |= static_queue_push(&update_queue, &entity);
-  if ((entity->comp_mask & queue_mask_physic) == queue_mask_physic) status |= static_queue_push(&physic_queue, &entity);
-  if ((entity->comp_mask & queue_mask_gizmo) == queue_mask_gizmo) status |= static_queue_push(&gizmo_queue, &entity);
-  if ((entity->comp_mask & queue_mask_pbr) == queue_mask_pbr) status |= static_queue_push(&pbr_queue, &entity);
+  if ((entity->comp_mask & queue_mask_update) == queue_mask_update) status |= static_queue_push(&queue_update, &entity);
+  if ((entity->comp_mask & queue_mask_physic) == queue_mask_physic) status |= static_queue_push(&queue_physic, &entity);
+  if ((entity->comp_mask & queue_mask_gizmo) == queue_mask_gizmo) status |= static_queue_push(&queue_gizmo, &entity);
+  if ((entity->comp_mask & queue_mask_pbr) == queue_mask_pbr) status |= static_queue_push(&queue_pbr, &entity);
+  if ((entity->comp_mask & queue_mask_sound) == queue_mask_sound) status |= static_queue_push(&queue_sound, &entity);
   return status;
 }
 void ecs_dispatch(static_queue_t* queue, u32 index, dispatch_t dispatch_type)
@@ -141,19 +158,23 @@ void ecs_dispatch(static_queue_t* queue, u32 index, dispatch_t dispatch_type)
 }
 void ecs_dispatch_update()
 {
-  ecs_dispatch(&update_queue, queue_idx_update, dispatch_update);
+  ecs_dispatch(&queue_update, queue_idx_update, dispatch_update);
 }
 void ecs_dispatch_physic()
 {
-  ecs_dispatch(&physic_queue, queue_idx_physic, dispatch_physic);
+  ecs_dispatch(&queue_physic, queue_idx_physic, dispatch_physic);
 }
 void ecs_dispatch_gizmo()
 {
-  ecs_dispatch(&gizmo_queue, queue_idx_gizmo, dispatch_gizmo);
+  ecs_dispatch(&queue_gizmo, queue_idx_gizmo, dispatch_gizmo);
 }
 void ecs_dispatch_pbr()
 {
-  ecs_dispatch(&pbr_queue, queue_idx_pbr, dispatch_pbr);
+  ecs_dispatch(&queue_pbr, queue_idx_pbr, dispatch_pbr);
+}
+void ecs_dispatch_sound()
+{
+  ecs_dispatch(&queue_sound, queue_idx_sound, dispatch_sound);
 }
 void ecs_call_available_procedures(entity_t* entity, dispatch_t dispatch_type)
 {
@@ -175,9 +196,9 @@ void ecs_call_available_procedures(entity_t* entity, dispatch_t dispatch_type)
 }
 void ecs_destroy()
 {
-  static_queue_destroy(&pbr_queue);
-  static_queue_destroy(&gizmo_queue);
-  static_queue_destroy(&physic_queue);
-  static_queue_destroy(&update_queue);
+  static_queue_destroy(&queue_pbr);
+  static_queue_destroy(&queue_gizmo);
+  static_queue_destroy(&queue_physic);
+  static_queue_destroy(&queue_update);
   fwd_list_destroy(&entities);
 }

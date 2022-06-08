@@ -1,17 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <glad.h>
-#include <glfw3.h>
+#include <glad/glad.h>
+#include <glfw/glfw3.h>
 
 #include <core/types.h>
 
 #include <ecs.h>
+#include <assets.h>
 #include <update.h>
 #include <renderer.h>
 #include <physic.h>
 #include <events.h>
-#include <asset_db.h>
 #include <sound.h>
 
 #include <sandbox.h>
@@ -21,15 +21,17 @@ r32v2 mouse_position;
 
 extern r32 ticks_render;
 extern r32 ticks_physic;
+extern r32 ticks_sound;
 
 static GLFWwindow* window = NULL;
 
 static r32 time = 0.0f;
 r32 delta_time = 0.0f;
 static r32 prev_time = 0.0f;
+static r32 prev_fps_time = 0.0f;
 static r32 prev_render_time = 0.0f;
 static r32 prev_physic_time = 0.0f;
-static r32 prev_fps_time = 0.0f;
+static r32 prev_sound_time = 0.0f;
 
 static u32 fps_count = 0;
 static i8 fps_title[8];
@@ -104,7 +106,10 @@ void engine_physic()
 }
 void engine_sound()
 {
-  sound_step();
+  if ((time - prev_sound_time) >= ticks_sound)
+  {
+    sound_step();
+  }
 }
 
 i32 main()
@@ -131,12 +136,12 @@ i32 main()
       {
         glDebugMessageCallback(gl_debug_proc, 0);
         glEnable(GL_DEBUG_OUTPUT);
-        status |= asset_db_create();
         status |= ecs_create();
+        status |= sound_create();
+        status |= assets_create();
         status |= update_create();
         status |= renderer_create();
         status |= physic_create();
-        status |= sound_create();
         status |= sandbox_create();
         while (status == 0)
         {
@@ -150,12 +155,12 @@ i32 main()
           prev_time = time;
         }
         sandbox_destroy();
-        sound_destroy();
         physic_destroy();
         renderer_destroy();
         update_destroy();
+        assets_destroy();
+        sound_destroy();
         ecs_destroy();
-        asset_db_destroy();
       }
       else
       {

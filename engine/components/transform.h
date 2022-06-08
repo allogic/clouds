@@ -15,8 +15,9 @@ typedef struct
   r32v4 local_up;
   r32v4 local_front;
   u32 mask;
-  u32 rigidbody_id;
-  u32 reserved[2];
+  i32 transform_parent_id;
+  i32 transform_id;
+  i32 rigidbody_id;
 } transform_t;
 
 #define TRANSFORM_POSITION(TRANSFORM) (TRANSFORM->model[0])

@@ -5,7 +5,7 @@
 
 #include <ecs.h>
 
-#define CHUNK_NUM_ROOTS ((u32)32*32*1)
+#define CHUNK_NUM_ROOTS ((u32)32*32*2)
 #define CHUNK_NUM_LEAFS ((u32)1)
 
 #define CHUNK_SIZE_X ((u32)32)

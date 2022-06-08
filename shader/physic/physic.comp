@@ -34,8 +34,9 @@ struct Transform
   vec4 local_up;
   vec4 local_front;
   uint mask;
-  uint rigidbody_id;
-  uint reserved[2];
+  int transform_parent_id;
+  int transform_id;
+  int rigidbody_id;
 };
 struct Rigidbody
 {
@@ -44,7 +45,7 @@ struct Rigidbody
   float position_drag;
   float rotation_drag;
   float mass;
-  float reserved[1];
+  int rigidbody_id;
 };
 
 ////////////////////////////////////////////////////////
@@ -145,16 +146,19 @@ mat4 mat4_rotate(mat4 m, float a, vec4 v)
 void main()
 {
   // Transform index
-  uint i =
+  uint tid =
     (gl_GlobalInvocationID.z * gl_WorkGroupSize.x * gl_WorkGroupSize.y) +
     (gl_GlobalInvocationID.y * gl_WorkGroupSize.x) +
     (gl_GlobalInvocationID.x);
 
+  // Transform parent index
+  uint pid = transforms[tid].transform_parent_id;
+
   // Rigidbody index
-  uint j = transforms[i].rigidbody_id;
+  uint rid = transforms[tid].rigidbody_id;
 
   // Compute local vectors
-  if (length(rigidbodies[j].rotation_velocity) > 0.001f)
+  if (length(rigidbodies[rid].rotation_velocity) > 0.001f)
   {
     mat4 m = mat4(
       1.0f, 0.0f, 0.0f, 0.0f,
@@ -162,27 +166,33 @@ void main()
       0.0f, 0.0f, 1.0f, 0.0f,
       0.0f, 0.0f, 0.0f, 1.0f
     );
-    m = mat4_rotate(m, radians(rigidbodies[j].rotation_velocity.x), transforms[i].local_right);
-    m = mat4_rotate(m, radians(rigidbodies[j].rotation_velocity.y), transforms[i].local_up);
-    m = mat4_rotate(m, radians(rigidbodies[j].rotation_velocity.z), transforms[i].local_front);
-    transforms[i].local_right = normalize(m * transforms[i].local_right);
-    transforms[i].local_up = normalize(m * transforms[i].local_up);
-    transforms[i].local_front = normalize(m * transforms[i].local_front);
+    m = mat4_rotate(m, radians(rigidbodies[rid].rotation_velocity.x), transforms[tid].local_right);
+    m = mat4_rotate(m, radians(rigidbodies[rid].rotation_velocity.y), transforms[tid].local_up);
+    m = mat4_rotate(m, radians(rigidbodies[rid].rotation_velocity.z), transforms[tid].local_front);
+    transforms[tid].local_right = normalize(m * transforms[tid].local_right);
+    transforms[tid].local_up = normalize(m * transforms[tid].local_up);
+    transforms[tid].local_front = normalize(m * transforms[tid].local_front);
   }
 
   // Apply physic
-  if (bool(transforms[i].mask & TRANSFORM_DYNAMIC))
+  if (bool(transforms[tid].mask & TRANSFORM_DYNAMIC))
   {
     // Apply position drag
-    rigidbodies[j].position_velocity += -rigidbodies[j].position_velocity * rigidbodies[j].position_drag * steps_size;
+    rigidbodies[rid].position_velocity += -rigidbodies[rid].position_velocity * rigidbodies[rid].position_drag * steps_size;
 
     // Apply rotation drag
-    rigidbodies[j].rotation_velocity += -rigidbodies[j].rotation_velocity * rigidbodies[j].rotation_drag * steps_size;
+    rigidbodies[rid].rotation_velocity += -rigidbodies[rid].rotation_velocity * rigidbodies[rid].rotation_drag * steps_size;
 
     // Apply position velocity
-    transforms[i].position += rigidbodies[j].position_velocity;
+    transforms[tid].position += rigidbodies[rid].position_velocity;
 
     // Apply rotation velocity
-    transforms[i].rotation += rigidbodies[j].rotation_velocity;
+    transforms[tid].rotation += rigidbodies[rid].rotation_velocity;
+  }
+
+  // Apply parent position
+  if (pid != -1)
+  {
+    transforms[tid].position = transforms[pid].position;
   }
 }

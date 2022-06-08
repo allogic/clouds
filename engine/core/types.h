@@ -1,7 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <mat4.h>
+#include <cglm/mat4.h>
 
 typedef char i8;
 typedef short i16;

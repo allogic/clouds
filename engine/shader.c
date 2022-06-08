@@ -2,7 +2,8 @@
 #include <string.h>
 
 #include <core/file_system.h>
-#include <glad.h>
+
+#include <glad/glad.h>
 
 #include <shader.h>
 

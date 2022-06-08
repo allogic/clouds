@@ -20,6 +20,7 @@
 #define ECS_PHYSIC_QUEUE_SIZE ((u32)32*32*32*2)
 #define ECS_GIZMO_QUEUE_SIZE  ((u32)32*32*32*2)
 #define ECS_PBR_QUEUE_SIZE    ((u32)32*32*32*2)
+#define ECS_SOUND_QUEUE_SIZE  ((u32)32*32*32*2)
 
 typedef enum
 {
@@ -48,10 +49,11 @@ typedef enum
 
 typedef enum
 {
-  queue_mask_update = comp_bit_transform,                     queue_idx_update = 0,
-  queue_mask_physic = comp_bit_transform | comp_bit_rigibody, queue_idx_physic = 1,
-  queue_mask_gizmo  = comp_bit_transform,                     queue_idx_gizmo  = 2,
-  queue_mask_pbr    = comp_bit_transform | comp_bit_mesh,     queue_idx_pbr    = 3,
+  queue_mask_update = comp_bit_transform,                                                 queue_idx_update = 0,
+  queue_mask_physic = comp_bit_transform | comp_bit_rigibody,                             queue_idx_physic = 1,
+  queue_mask_gizmo  = comp_bit_transform,                                                 queue_idx_gizmo  = 2,
+  queue_mask_pbr    = comp_bit_transform | comp_bit_mesh,                                 queue_idx_pbr    = 3,
+  queue_mask_sound  = comp_bit_transform | comp_bit_audio_source | comp_bit_audio_source, queue_idx_sound  = 4,
 } queue_map_t;
 
 typedef enum
@@ -79,12 +81,13 @@ typedef enum
   dispatch_gizmo,  // fixed
   dispatch_pbr,    // fixed
   dispatch_physic, // fixed
+  dispatch_sound,  // fixed
 } dispatch_t;
 
 u8 ecs_create();
 entity_t* ecs_create_entity();
 void ecs_erase(entity_t* entity);
-transform_t* ecs_attach_transform(entity_t* entity, u8* status);
+transform_t* ecs_attach_transform(entity_t* entity, transform_t* parent, u8* status);
 camera_t* ecs_attach_camera(entity_t* entity, u8* status);
 mesh_t* ecs_attach_mesh(entity_t* entity, u8* status);
 rigidbody_t* ecs_attach_rigidbody(entity_t* entity, u8* status);
@@ -98,6 +101,7 @@ void ecs_dispatch_update();
 void ecs_dispatch_physic();
 void ecs_dispatch_gizmo();
 void ecs_dispatch_pbr();
+void ecs_dispatch_sound();
 void ecs_call_available_procedures(entity_t* entity, dispatch_t dispatch_type);
 void ecs_destroy();
 
