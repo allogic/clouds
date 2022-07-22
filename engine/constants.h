@@ -3,8 +3,6 @@
 
 #include <core/types.h>
 
-#define ENGINE_ROOT_DIR "C:\\Users\\Michael\\Downloads\\clouds\\"
-
 static r32v3 zero  = { 0.0f, 0.0f, 0.0f };
 
 static r32v3 right = { 1.0f, 0.0f, 0.0f };

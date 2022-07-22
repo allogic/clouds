@@ -17,14 +17,22 @@ typedef struct
   event_state_t previous;
 } event_t;
 
-u8 key_down(u32 key);
-u8 key_held(u32 key);
-u8 key_up(u32 key);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-u8 mouse_down(u32 key);
-u8 mouse_held(u32 key);
-u8 mouse_up(u32 key);
+  u8 key_down(u32 key);
+  u8 key_held(u32 key);
+  u8 key_up(u32 key);
 
-void events_poll(GLFWwindow* window);
+  u8 mouse_down(u32 key);
+  u8 mouse_held(u32 key);
+  u8 mouse_up(u32 key);
+
+  void events_poll(GLFWwindow* window);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

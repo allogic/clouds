@@ -5,7 +5,7 @@
 
 #include <ecs.h>
 
-#define CHUNK_NUM_ROOTS ((u32)32*32*2)
+#define CHUNK_NUM_ROOTS ((u32)32)
 #define CHUNK_NUM_LEAFS ((u32)1)
 
 #define CHUNK_SIZE_X ((u32)32)
@@ -18,10 +18,16 @@ typedef struct
   r32v3 size;
 } chunk_t;
 
-void gizmo_chunk_proc(entity_t* entity);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-u8 world_create();
-void world_build();
-void world_destroy();
+  u8 world_create();
+  void world_build();
+  void world_destroy();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

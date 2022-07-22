@@ -5,10 +5,16 @@
 
 #include <ecs.h>
 
-void physic_queue_proc(entity_t* entity);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-u8 physic_create();
-void physic_step(r32 steps_size);
-void physic_destroy();
+  u8 physic_create();
+  void physic_step(r32 steps_size);
+  void physic_destroy();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

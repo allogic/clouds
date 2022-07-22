@@ -5,8 +5,16 @@
 
 #include <ecs.h>
 
-u8 renderer_create();
-void renderer_new_frame();
-void renderer_destroy();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  u8 renderer_create();
+  void renderer_render();
+  void renderer_destroy();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

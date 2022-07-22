@@ -13,6 +13,8 @@
 #include <physic.h>
 #include <events.h>
 #include <sound.h>
+#include <ui.h>
+#include <profiler.h>
 
 #include <sandbox.h>
 
@@ -23,9 +25,11 @@ extern r32 ticks_render;
 extern r32 ticks_physic;
 extern r32 ticks_sound;
 
-static GLFWwindow* window = NULL;
+GLFWwindow* window = NULL;
 
-static r32 time = 0.0f;
+extern profiler_frame_t history[PROFILER_NUM_FRAMES][PROFILER_NUM_SAMPLES];
+
+r32 time = 0.0f;
 r32 delta_time = 0.0f;
 static r32 prev_time = 0.0f;
 static r32 prev_fps_time = 0.0f;
@@ -83,34 +87,58 @@ static void gl_debug_proc(u32 source, u32 type, u32 id, u32 severity, i32 length
   }
 }
 
-void engine_update()
-{
-  update_step();
-}
-void engine_render()
-{
-  if ((time - prev_render_time) >= ticks_render)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  void engine_update()
   {
-    renderer_new_frame();
-    glfwSwapBuffers(window);
-    prev_render_time = time;
+    PROFILER_FRAME_BEGIN(profiler_idx_update);
+    update_step();
+    PROFILER_FRAME_END(profiler_idx_update);
   }
-}
-void engine_physic()
-{
-  if ((time - prev_physic_time) >= ticks_physic)
+  void engine_render()
   {
-    physic_step(0.1f);
-    prev_physic_time = time;
+    if ((time - prev_render_time) >= ticks_render)
+    {
+      PROFILER_FRAME_BEGIN(profiler_idx_render);
+      renderer_render();
+      PROFILER_FRAME_END(profiler_idx_render);
+      prev_render_time = time;
+    }
   }
-}
-void engine_sound()
-{
-  if ((time - prev_sound_time) >= ticks_sound)
+  void engine_physic()
   {
-    sound_step();
+    if ((time - prev_physic_time) >= ticks_physic)
+    {
+      PROFILER_FRAME_BEGIN(profiler_idx_physic);
+      physic_step(0.1f);
+      PROFILER_FRAME_END(profiler_idx_physic);
+      prev_physic_time = time;
+    }
   }
+  void engine_sound()
+  {
+    if ((time - prev_sound_time) >= ticks_sound)
+    {
+      PROFILER_FRAME_BEGIN(profiler_idx_sound);
+      sound_step();
+      PROFILER_FRAME_END(profiler_idx_sound);
+    }
+  }
+  void engine_ui()
+  {
+    PROFILER_FRAME_BEGIN(profiler_idx_ui);
+    u8 open_actors = 1;
+    u8 open_profiler = 1;
+    ui_debug_actors(&open_actors);
+    ui_debug_profiler(&open_profiler);
+    PROFILER_FRAME_END(profiler_idx_ui);
+  }
+
+#ifdef __cplusplus
 }
+#endif
 
 i32 main()
 {
@@ -142,19 +170,31 @@ i32 main()
         status |= update_create();
         status |= renderer_create();
         status |= physic_create();
+        status |= ui_create(window);
+        status |= profiler_create();
         status |= sandbox_create();
         while (status == 0)
         {
           time = (r32)glfwGetTime();
           delta_time = time - prev_time;
           events_poll(window);
+          glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+          ui_begin();
           engine_update();
           engine_render();
           engine_physic();
           engine_sound();
+          engine_ui();
+          profiler_step();
+          ui_end();
+          ui_render();
+          glfwSwapBuffers(window);
           prev_time = time;
         }
         sandbox_destroy();
+        profiler_destroy();
+        ui_destroy();
         physic_destroy();
         renderer_destroy();
         update_destroy();

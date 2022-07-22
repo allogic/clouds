@@ -5,14 +5,18 @@
 
 #include <ecs.h>
 
-void update_player_proc(entity_t* entity);
-void gizmo_player_proc(entity_t* entity);
-void physic_thruster_proc(entity_t* entity);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-u8 player_create();
-void player_break(rigidbody_t* rigidbody);
-void player_boost(transform_t* transform, rigidbody_t* rigidbody);
-void player_drift(transform_t* transform, rigidbody_t* rigidbody);
-void player_destroy();
+  u8 player_create();
+  void player_break(rigidbody_t* rigidbody);
+  void player_boost(transform_t* transform, rigidbody_t* rigidbody);
+  void player_drift(transform_t* transform, rigidbody_t* rigidbody);
+  void player_destroy();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -17,12 +17,17 @@ typedef struct fwd_list_t
   u32 count;
 } fwd_list_t;
 
-u8 fwd_node_create(fwd_node_t** node, void* data, u32 size);
-void fwd_node_destroy(fwd_node_t** node);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void fwd_list_create(fwd_list_t* list);
-void* fwd_list_push(fwd_list_t* list, void* data, u32 size);
-void fwd_list_erase(fwd_list_t* list, void* data);
-void fwd_list_destroy(fwd_list_t* list);
+  void fwd_list_create(fwd_list_t* list);
+  void* fwd_list_push(fwd_list_t* list, void* data, u32 size);
+  void fwd_list_erase(fwd_list_t* list, void* data);
+  void fwd_list_destroy(fwd_list_t* list);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -5,10 +5,16 @@
 
 #include <ecs.h>
 
-void pbr_queue_proc(entity_t* entity);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-u8 pbr_create();
-void pbr_render();
-void pbr_destroy();
+  u8 pbr_create();
+  void pbr_render();
+  void pbr_destroy();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

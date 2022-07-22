@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
-project(clouds VERSION 0.0.1 LANGUAGES C)
+project(clouds VERSION 0.0.1 LANGUAGES C CXX)
 
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(BIN_DIR ${ROOT_DIR}/bin)
@@ -12,5 +12,8 @@ set(CGLM_DIR ${ROOT_DIR}/cglm)
 set(GLFW_DIR ${ROOT_DIR}/glfw)
 set(OPENAL_DIR ${ROOT_DIR}/openal)
 set(ALUT_DIR ${ROOT_DIR}/alut)
+set(UFBX_DIR ${ROOT_DIR}/ufbx)
+set(IMGUI_DIR ${ROOT_DIR}/imgui)
+set(IMPLOT_DIR ${ROOT_DIR}/implot)
 
 add_subdirectory(engine)

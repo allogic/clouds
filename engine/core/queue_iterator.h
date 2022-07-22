@@ -13,10 +13,18 @@ typedef struct
   void* data;
 } queue_iter_t;
 
-void queue_iter_create(queue_iter_t* iter, struct static_queue_t* queue);
-u8 queue_iter_valid(queue_iter_t* iter);
-void queue_iter_next(queue_iter_t* iter);
-u32 queue_iter_index(queue_iter_t* iter);
-void* queue_iter_value(queue_iter_t* iter);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  void queue_iter_create(queue_iter_t* iter, struct static_queue_t* queue);
+  u8 queue_iter_valid(queue_iter_t* iter);
+  void queue_iter_next(queue_iter_t* iter);
+  u32 queue_iter_index(queue_iter_t* iter);
+  void* queue_iter_value(queue_iter_t* iter);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

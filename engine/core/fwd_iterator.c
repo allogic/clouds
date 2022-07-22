@@ -1,37 +1,45 @@
 #include <core/fwd_iterator.h>
 #include <core/fwd_list.h>
 
-void fwd_iter_create(fwd_iter_t* iter, fwd_list_t* list)
-{
-  if (list->count > 0)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  void fwd_iter_create(fwd_iter_t* iter, fwd_list_t* list)
   {
-    iter->head = list->head;
-    iter->curr = list->head;
-    iter->tail = list->tail;
+    if (list->count > 0)
+    {
+      iter->head = list->head;
+      iter->curr = list->head;
+      iter->tail = list->tail;
+    }
+    else
+    {
+      iter->head = NULL;
+      iter->curr = NULL;
+      iter->tail = NULL;
+    }
   }
-  else
+  u8 fwd_iter_valid(fwd_iter_t* iter)
   {
-    iter->head = NULL;
-    iter->curr = NULL;
-    iter->tail = NULL;
+    return iter->curr == NULL;
   }
-}
-u8 fwd_iter_valid(fwd_iter_t* iter)
-{
-  return iter->curr == NULL;
-}
-void fwd_iter_next(fwd_iter_t* iter)
-{
-  if (iter->curr != NULL)
+  void fwd_iter_next(fwd_iter_t* iter)
   {
-    iter->curr = iter->curr->next;
+    if (iter->curr != NULL)
+    {
+      iter->curr = iter->curr->next;
+    }
   }
+  fwd_node_t* fwd_iter_node(fwd_iter_t* iter)
+  {
+    return iter->curr;
+  }
+  void* fwd_iter_value(fwd_iter_t* iter)
+  {
+    return iter->curr->data;
+  }
+
+#ifdef __cplusplus
 }
-fwd_node_t* fwd_iter_node(fwd_iter_t* iter)
-{
-  return iter->curr;
-}
-void* fwd_iter_value(fwd_iter_t* iter)
-{
-  return iter->curr->data;
-}
+#endif

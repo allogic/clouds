@@ -9,7 +9,7 @@
 static ALCdevice* device;
 static ALCcontext* context;
 
-void sound_queue_proc(entity_t* entity)
+static void sound_queue_proc(entity_t* entity)
 {
   transform_t* transform = ECS_TRANSFORM(entity);
   rigidbody_t* rigidbody = ECS_RIGIDBODY(entity);
@@ -38,41 +38,49 @@ void sound_queue_proc(entity_t* entity)
   }
 }
 
-u8 sound_create()
-{
-  alGetError();
-  device = alcOpenDevice(NULL);
-  if (device != NULL)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  u8 sound_create()
   {
-    context = alcCreateContext(device, NULL);
+    alGetError();
+    device = alcOpenDevice(NULL);
+    if (device != NULL)
+    {
+      context = alcCreateContext(device, NULL);
+      if (context != NULL)
+      {
+        if (alcMakeContextCurrent(context) == 1)
+        {
+          ecs_register_static(queue_idx_sound, sound_queue_proc);
+          return 0;
+        }
+        alcDestroyContext(context);
+      }
+      alcCloseDevice(device);
+    }
+    return 1;
+  }
+  void sound_step()
+  {
+    ecs_dispatch_sound();
+  }
+  void sound_destroy()
+  {
+    alcMakeContextCurrent(NULL);
     if (context != NULL)
     {
-      if (alcMakeContextCurrent(context) == 1)
-      {
-        ecs_register_static(queue_idx_sound, sound_queue_proc);
-        return 0;
-      }
       alcDestroyContext(context);
+      context = NULL;
     }
-    alcCloseDevice(device);
+    if (device != NULL)
+    {
+      alcCloseDevice(device);
+      device = NULL;
+    }
   }
-  return 1;
+
+#ifdef __cplusplus
 }
-void sound_step()
-{
-  ecs_dispatch_sound();
-}
-void sound_destroy()
-{
-  alcMakeContextCurrent(NULL);
-  if (context != NULL)
-  {
-    alcDestroyContext(context);
-    context = NULL;
-  }
-  if (device != NULL)
-  {
-    alcCloseDevice(device);
-    device = NULL;
-  }
-}
+#endif

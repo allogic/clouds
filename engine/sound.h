@@ -5,10 +5,16 @@
 
 #include <ecs.h>
 
-void sound_queue_proc(entity_t* entity);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-u8 sound_create();
-void sound_step();
-void sound_destroy();
+  u8 sound_create();
+  void sound_step();
+  void sound_destroy();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -5,10 +5,16 @@
 
 #include <ecs.h>
 
-void update_queue_proc(entity_t* entity);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-u8 update_create();
-void update_step();
-void update_destroy();
+  u8 update_create();
+  void update_step();
+  void update_destroy();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

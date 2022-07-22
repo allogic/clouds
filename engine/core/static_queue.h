@@ -13,12 +13,20 @@ typedef struct static_queue_t
   void* data;
 } static_queue_t;
 
-void static_queue_create(static_queue_t* queue, u32 value_count, u32 value_size);
-u8 static_queue_push(static_queue_t* queue, void* value);
-void* static_queue_pop(static_queue_t* queue);
-u32 static_queue_length(static_queue_t* queue);
-u8 static_queue_empty(static_queue_t* queue);
-u8 static_queue_full(static_queue_t* queue);
-void static_queue_destroy(static_queue_t* queue);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  void static_queue_create(static_queue_t* queue, u32 value_count, u32 value_size);
+  u8 static_queue_push(static_queue_t* queue, void* value);
+  void* static_queue_pop(static_queue_t* queue);
+  u32 static_queue_length(static_queue_t* queue);
+  u8 static_queue_empty(static_queue_t* queue);
+  u8 static_queue_full(static_queue_t* queue);
+  void static_queue_destroy(static_queue_t* queue);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

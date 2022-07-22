@@ -1,6 +1,11 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <cglm/vec2.h>
+#include <cglm/vec3.h>
+#include <cglm/vec4.h>
+
+#include <cglm/mat3.h>
 #include <cglm/mat4.h>
 
 typedef char i8;

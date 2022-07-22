@@ -13,6 +13,14 @@ typedef struct
   r32m4 view;
 } camera_t;
 
-u8 camera_create(camera_t* camera);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  u8 camera_create(camera_t* camera);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

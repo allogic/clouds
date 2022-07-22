@@ -3,7 +3,15 @@
 
 #include <core/types.h>
 
-u8 sandbox_create();
-void sandbox_destroy();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  u8 sandbox_create();
+  void sandbox_destroy();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

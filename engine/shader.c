@@ -7,7 +7,7 @@
 
 #include <shader.h>
 
-u8 shader_check_compile_status(u32 shader_id)
+static u8 shader_check_compile_status(u32 shader_id)
 {
   i32 compile_status = 0;
   i32 info_log_length = 0;
@@ -29,8 +29,8 @@ u8 shader_check_compile_status(u32 shader_id)
     return 1;
   }
   return 0;
-}
-u8 shader_check_link_status(u32 program_id)
+  }
+static u8 shader_check_link_status(u32 program_id)
 {
   i32 link_status = 0;
   i32 info_log_length = 0;
@@ -54,14 +54,18 @@ u8 shader_check_link_status(u32 program_id)
   return 0;
 }
 
-u8 shader_create(shader_t* shader)
-{
-  u8 status = 1;
-  shader->pid = glCreateProgram();
-  if (shader->pid != 0)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  u8 shader_create(shader_t* shader)
   {
-    switch (shader->type)
+    u8 status = 1;
+    shader->pid = glCreateProgram();
+    if (shader->pid != 0)
     {
+      switch (shader->type)
+      {
       case shader_render:
       {
         u32 vertex_id = glCreateShader(GL_VERTEX_SHADER);
@@ -128,45 +132,49 @@ u8 shader_create(shader_t* shader)
         glDeleteShader(compute_id);
         break;
       }
+      }
+      if (status != 0)
+      {
+        glDeleteShader(shader->pid);
+        shader->pid = 0;
+      }
     }
-    if (status != 0)
-    {
-      glDeleteShader(shader->pid);
-      shader->pid = 0;
-    }
+    return status;
   }
-  return status;
+  void shader_bind(shader_t* shader)
+  {
+    glUseProgram(shader->pid);
+  }
+  void shader_uniform_r32(shader_t* shader, i8 const* uniform_name, r32 v)
+  {
+    glUniform1f(
+      glGetUniformLocation(shader->pid, uniform_name),
+      v
+    );
+  }
+  void shader_uniform_r32m4(shader_t* shader, i8 const* uniform_name, r32m4 m)
+  {
+    glUniformMatrix4fv(
+      glGetUniformLocation(shader->pid, uniform_name),
+      1,
+      0,
+      &m[0][0]
+    );
+  }
+  void shader_execute(shader_t* shader, u32 x, u32 y, u32 z)
+  {
+    glDispatchCompute(x, y, z);
+  }
+  void shader_unbind()
+  {
+    glUseProgram(0);
+  }
+  void shader_destroy(shader_t* shader)
+  {
+    glDeleteProgram(shader->pid);
+    shader->pid = 0;
+  }
+
+#ifdef __cplusplus
 }
-void shader_bind(shader_t* shader)
-{
-  glUseProgram(shader->pid);
-}
-void shader_uniform_r32(shader_t* shader, i8 const* uniform_name, r32 v)
-{
-  glUniform1f(
-    glGetUniformLocation(shader->pid, uniform_name),
-    v
-  );
-}
-void shader_uniform_r32m4(shader_t* shader, i8 const* uniform_name, r32m4 m)
-{
-  glUniformMatrix4fv(
-    glGetUniformLocation(shader->pid, uniform_name),
-    1,
-    0,
-    &m[0][0]
-  );
-}
-void shader_execute(shader_t* shader, u32 x, u32 y, u32 z)
-{
-  glDispatchCompute(x, y, z);
-}
-void shader_unbind()
-{
-  glUseProgram(0);
-}
-void shader_destroy(shader_t* shader)
-{
-  glDeleteProgram(shader->pid);
-  shader->pid = 0;
-}
+#endif

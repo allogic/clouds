@@ -5,6 +5,9 @@ $glfw_dir = (Join-Path $PSScriptRoot "\glfw\")
 $cglm_dir = (Join-Path $PSScriptRoot "\cglm\")
 $openal_dir = (Join-Path $PSScriptRoot "\openal\")
 $alut_dir = (Join-Path $PSScriptRoot "\alut\")
+$ufbx_dir = (Join-Path $PSScriptRoot "\ufbx\")
+$imgui_dir = (Join-Path $PSScriptRoot "\imgui\")
+$implot_dir = (Join-Path $PSScriptRoot "\implot\")
 
 # BIN
 New-Item -ItemType Directory -Force -Path $bin_dir
@@ -59,3 +62,15 @@ cd ..
 # ALUT
 if (Test-Path -Path $alut_dir) { Remove-Item $alut_dir -Recurse -Force }
 git clone "https://github.com/allogic/alut"
+
+# UFBX
+if (Test-Path -Path $ufbx_dir) { Remove-Item $ufbx_dir -Recurse -Force }
+git clone "https://github.com/allogic/ufbx"
+
+# IMGUI
+if (Test-Path -Path $imgui_dir) { Remove-Item $imgui_dir -Recurse -Force }
+git clone -b docking "https://github.com/allogic/imgui"
+
+# IMPLOT
+if (Test-Path -Path $implot_dir) { Remove-Item $implot_dir -Recurse -Force }
+git clone "https://github.com/allogic/implot"
